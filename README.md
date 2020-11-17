@@ -4,6 +4,10 @@
 
 This program will take in a hexadecimal color code and tell you whether there is red, green, or blue in it.
 
+# v0.2 Updates
+
+This program finds the hexadecimal color codes in an HTML file(currently only searches through csuchico.html). Then, it will cycle through each color code and tell the user whether there is red, green, or blue in it.
+
 ## Developer
 
 Josh Huskisson
@@ -20,17 +24,22 @@ g++ --std=c++11 main.cpp -o cvp
 Here is an example of the program running:
 
 ```
-What color are you using (in hexadecimal)? A1F358
+960000
 There is red in this color.
-There is green in this color.
-This color has blue in it.
 Would you like to store this number? (y or n) y
-Do you want to input another color? (y or n) y
-What color are you using (in hexadecimal)? FFFF00
+Do you want to go to the next color? (y or n) y
+882211
 There is red in this color.
 There is green in this color.
+There is blue in this color.
 Would you like to store this number? (y or n) n
-Do you want to input another color? (y or n) n
+Do you want to go to the next color? (y or n) y
+fae88a
+There is red in this color.
+There is green in this color.
+There is blue in this color.
+Would you like to store this number? (y or n) y
+Do you want to go to the next color? (y or n) n
 ```
 
 ## C++ Guide
@@ -47,10 +56,10 @@ The ```char``` variable type is used for storing single characters. In this prog
 ### Input and Output
 
 ```
-cout << "What color are you using (in hexadecimal)? ";
-cin >> hex >> usersColor;
+cout << "Would you like to store this number? (y or n) ";
+cin >> yesNo;
 ```
-Using ```cout``` the program can ask questions from the user and get their input using ```cin```. The ```cout``` can output variables and strings into the terminal for the user to see. This ```cin``` is taking the user's input and storing it into ```usersColor``` as a hex value.
+Using ```cout``` the program can ask questions from the user and get their input using ```cin```. The ```cout``` can output variables and strings into the terminal for the user to see. This ```cin``` is taking the user's input and storing it into ```yesNo``` which will affect program later on.
 
 ### Decisions
 
@@ -100,3 +109,37 @@ writeFile.close();
 }
 ```
 In this portion of the program it will input the ```usersColor``` into the storedColors.txt file. This will allow the user to look back through the color codes they have saved.
+
+### Arrays/Vectors
+
+```
+vector <string> hexValues;
+```
+Vectors are used to store values of a certain data type. Individual elements in the vector can be called by using square brackets. Vectors can be resized throughout the program. An array can not be resized and the size must instead be defined at the start of the program. 
+In this part of the code, the vector ```hexValues``` is defined to hold ```string``` values. The hexadecimal color codes are added to this vector and changed throughout the program. 
+
+### Functions
+
+```
+void deleteRepeats(vector <string> & list){
+  string element;
+  string checkElement;
+  
+
+  //cycle through vector
+  for(int i = 0; i < list.size(); i++){
+    element = list[i];
+    //cycle through vector from the bottom and check if each element matches the element 
+    //from the loop above
+    for(int j = list.size() - 1; j >= i + 1; j--){
+      checkElement = list[j];
+      if(checkElement == element){
+        list.erase(list.begin() + j);
+      }
+    }
+
+  }
+}
+```
+Functions are used to complete repeated actions without needing to type the code out again and again. This allows the main function to stay neat and remain easy to read. It can return a value or not. It can take in a value or not. 
+In this function, it has a return type of ```void``` which means that nothing will be returned. For it's parameters it takes a ```vector``` of ```strings``` and uses pass-by reference. This means that it is giving the function the ```vector``` and the ability to change that ```vector``` permanently. This is useful because in this function I need it to get rid of the repeats in the ```vector``` of hexadecimal color codes.  
