@@ -1,10 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "color.h"
 
 using namespace std;
 
-void getRGBinfo(vector <int>);
 void isHexCode(vector <string> &);
 void deleteRepeats(vector <string> &);
 void convertToSix(vector <string> &);
@@ -13,12 +13,16 @@ vector <int> convertToInt(vector <string>);
 int main()
 {
   fstream reader;
+  int index = 0;
+  char yesNo;
+  ofstream writeFile;
   string line;
   char character;
   int number;
   string colorCode = "aaaaaa";
   vector <string> hexValues;
   vector <int> intHexValues;
+  vector <color> colorInfo;
 
   reader.open("csuchico.html", ios::in);
   if(reader.is_open() == true){
@@ -31,6 +35,8 @@ int main()
           //grabbing the whole 6 digit hex code
           for(int j=1; j <= 7; j++){
             //checking if each character is a character that could be in a hex code
+              //I'm using ASCII values here in place of actual letters
+              //Link to ASCII table of values: http://www.asciitable.com/
             if((line[j+i] >= 48 && line[j+i] <= 57) || (line[j+i] >= 65 && line[j+i] <=70) || (line[j+i] >= 97 && line[j+i] <= 102)){
               colorCode[j-1] = line[j+i];
             }
@@ -38,7 +44,6 @@ int main()
             else{
               colorCode[j-1] = ' ';
             }
-          
           }
           //if a hex code has a space in it, turn the remaining characters after the space 
           //into spaces
@@ -57,91 +62,47 @@ int main()
   }
   reader.close();
 
-  isHexCode(hexValues);
-  deleteRepeats(hexValues);
-  convertToSix(hexValues);
-  intHexValues = convertToInt(hexValues);
-  getRGBinfo(intHexValues);
+  isHexCode(hexValues); //Checks to see if color code is hex
+  convertToSix(hexValues); //Converts color codes to 6 characters
+  deleteRepeats(hexValues); //Deletes repeated codes
+  //Puts each hex code into a vector of the color class
+  for (int i = 0; i < hexValues.size(); i++){
+    color newColor{hexValues[i]};
+    colorInfo.push_back(newColor);
+  }
+  cout << "Displaying colors from csuchico.html:" << endl;
+  do{
+    color currentColor = colorInfo[index];
+    colorInfo[index].printColor();
+    colorInfo[index].checkRed();
+    colorInfo[index].checkGreen();
+    colorInfo[index].checkBlue();
+
+    do{
+      cout << "Would you like to store this number? (y or n) ";
+      cin >> yesNo;
+    }while(yesNo != 'y' && yesNo != 'n');
+
+    if(yesNo == 'y') 
+    {
+      writeFile.open("storedColors.txt", ios::app);
+      writeFile << colorInfo[index].giveHex() << endl; //Stores colors in file storedColors.txt
+      writeFile.close();
+    }
+    do{
+    cout << "Do you want to go to the next color? (y or n) ";
+    cin >> yesNo;
+    }while(yesNo != 'y' && yesNo != 'n');
+    index++;
+  }while(yesNo == 'y' && index != colorInfo.size());
 
   return 0;
 }
 
-void getRGBinfo(vector <int> colorCodes){
+//Functions start here
 
-  int index = 0;
-  int usersColor;
-  int noRed;
-  int noGreen;
-  char yesNo;
-  ofstream writeFile;
-  
-  
-  do{
-    usersColor = colorCodes[index];
-    cout << hex << usersColor << endl;
-    do{
-
-      if(usersColor < 0 || usersColor > 0xFFFFFF)
-      {
-        cout << "Invalid hexadecimal value." << endl;
-      }
-    }while(usersColor < 0 || usersColor > 0xFFFFFF);
-
-
-    if(usersColor >= 0x010000) //Checks for red in color
-    {
-      cout << "There is red in this color." << endl;
-    }
-
-    noRed = usersColor;
-    if(usersColor >= 0x000100) //Checks for green in color
-    {
-      if(usersColor >= 0x010000) //Checks if color has red in it
-      {
-        do{ 
-          noRed = noRed - 0x010000; //Subtracting all the red out of the color
-        }while(noRed >= 0x010000);
-      }
-      if(noRed <= 0x00FFFF && noRed >= 0x000100) //Checks redless color for green
-      {
-      cout << "There is green in this color." << endl;
-      }
-    }
-
-    if(noRed >= 0x000100) 
-    {
-      noGreen = noRed;
-      do{
-          noGreen = noGreen - 0x000100; //Subtracts all the green out of the color
-
-      }while(noGreen >= 0x000100); 
-    }
-    else
-    {
-      noGreen = noRed;
-    }
-    if(noGreen > 0x000000) //Checks if there is blue in the green-less color
-      {
-        cout << "There is blue in this color." << endl;
-      }
-    
-    
-    cout << "Would you like to store this number? (y or n) ";
-    cin >> yesNo;
-    if(yesNo == 'y') 
-    {
-      writeFile.open("storedColors.txt", ios::app);
-      writeFile << hex << usersColor << endl; //Stores colors in file storedColors.txt
-      writeFile.close();
-    }
-    cout << "Do you want to go to the next color? (y or n) ";
-    cin >> yesNo;
-    index++;
-  }while(yesNo == 'y' && index != colorCodes.size());
-
-}
-
-void isHexCode(vector <string> & colorCodes){ //Checks to see if color code is HEX 
+//Checks to see if color code is HEX
+void isHexCode(vector <string> & colorCodes){  
   string currentCode;
   char currentCharacter;
   
